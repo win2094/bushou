@@ -19,6 +19,7 @@ export class GameEngine {
     );
     this.rowIndex = 0;
     this.status = "playing"; // playing | won | lost
+    this.lastFeedback = "";
   }
 
   get currentGuess() {
@@ -96,10 +97,16 @@ export class GameEngine {
       this.rowIndex += 1;
     }
 
+    this.lastFeedback = explainGuess(this.guesses[submittedRow], evaluation, {
+      remaining: MAX_GUESSES - submittedRow - 1,
+      won,
+    });
+
     return {
       submitted: true,
       evaluation: this.evaluations[submittedRow],
       status: this.status,
+      feedback: this.lastFeedback,
     };
   }
 
@@ -111,8 +118,34 @@ export class GameEngine {
       rowIndex: this.rowIndex,
       status: this.status,
       canSubmit: this.canSubmit(),
+      feedback: this.lastFeedback,
     };
   }
+}
+
+/**
+ * Plain-language result so players know exactly which slot is wrong.
+ * @param {string[]} guess
+ * @param {TileState[]} evaluation
+ * @param {{ remaining: number, won: boolean }} extras
+ */
+export function explainGuess(guess, evaluation, extras) {
+  const formula = guess.join(" + ");
+  if (extras.won) {
+    return `啱晒：${formula}。呢個就係答案拆法。`;
+  }
+
+  const lines = guess.map((part, index) => {
+    const state = evaluation[index];
+    const slot = `第 ${index + 1} 格「${part}」`;
+    if (state === "correct") return `${slot}：啱，位置都啱`;
+    if (state === "present") return `${slot}：答案有呢個部件，但唔係排呢度，要調次序`;
+    return `${slot}：錯，答案冇呢個部件`;
+  });
+
+  const left = extras.remaining;
+  const tail = left > 0 ? `仲有 ${left} 次機會。` : "機會用晒。";
+  return `你估：${formula}。未砌中。\n${lines.join("\n")}\n${tail}`;
 }
 
 /**

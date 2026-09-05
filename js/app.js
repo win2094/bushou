@@ -9,6 +9,7 @@ const els = {
   title: document.querySelector("#title"),
   hint: document.querySelector("#hint"),
   goal: document.querySelector("#goal"),
+  feedback: document.querySelector("#feedback"),
   submit: document.querySelector("#submit-top"),
 };
 
@@ -41,7 +42,7 @@ document.querySelector("#how-to").addEventListener("click", () => {
   view.showModal({
     title: "點玩",
     reveal: "林",
-    body: "唔係估兩個字，係估 1 個漢字點拆。例如木 + 木 = 林。由左到右揀啱嘅部件，撳送出。你有 5 次機會。",
+    body: "唔係估兩個字，係估 1 個漢字點拆。例如木 + 木 = 林。送出之後綠色係呢格啱，黃色係有呢個部件但排錯，灰色係答案冇。下面會用文字講邊格錯。",
     action: "明白",
     mode: "help",
   });

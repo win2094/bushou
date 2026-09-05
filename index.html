@@ -56,10 +56,18 @@
 
       <main class="flex-1 flex flex-col items-center justify-center gap-4 min-w-0">
         <p id="goal" class="text-center text-xl font-semibold tracking-wide">？ = □ + □</p>
-        <p class="text-center text-stone-600 text-sm leading-6 px-2">
-          下面鍵盤揀部首，砌返個隱藏漢字。例如：木 + 木 = 林。綠色位置啱，黃色有呢個部件但次序唔啱。
-        </p>
+        <div class="flex flex-wrap justify-center gap-2 text-xs font-medium px-1">
+          <span class="rounded-full bg-emerald-600 text-white px-3 py-1">綠 = 呢格啱</span>
+          <span class="rounded-full bg-amber-400 text-stone-900 px-3 py-1">黃 = 有但排錯</span>
+          <span class="rounded-full bg-stone-400 text-white px-3 py-1">灰 = 答案冇</span>
+        </div>
         <div id="grid" class="grid gap-1.5 w-full max-w-[22rem] px-1"></div>
+        <div
+          id="feedback"
+          class="w-full max-w-[22rem] rounded-2xl bg-white border border-stone-200 px-4 py-3 text-base leading-7 text-stone-800 whitespace-pre-line"
+        >
+          揀齊部件再撳「送出」，會即刻話你知邊格啱、邊格錯。
+        </div>
         <button
           id="submit-top"
           type="button"

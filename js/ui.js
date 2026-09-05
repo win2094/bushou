@@ -27,6 +27,7 @@ export class GameView {
    *   title: HTMLElement,
    *   hint: HTMLElement,
    *   goal: HTMLElement,
+   *   feedback: HTMLElement,
    *   submit: HTMLButtonElement,
    * }} els
    * @param {{
@@ -122,6 +123,8 @@ export class GameView {
     this.els.goal.textContent = `？ = ${Array.from({ length: n }, () => "□").join(" + ")}`;
     this.els.submit.disabled = !state.canSubmit;
     this.els.submit.classList.toggle("opacity-40", !state.canSubmit);
+    this.els.feedback.textContent =
+      state.feedback || "揀齊部件再撳「送出」，會即刻話你知邊格啱、邊格錯。";
   }
 
   /**
