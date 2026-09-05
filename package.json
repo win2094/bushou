@@ -1,0 +1,10 @@
+{
+  "name": "bushou",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mobile-first Hanzi radical synthesis game (Wordle-like)",
+  "scripts": {
+    "start": "npx --yes serve . -p 4173"
+  }
+}

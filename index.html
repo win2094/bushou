@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#fffbeb" />
+    <title>部首 — 漢字解構合成</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "PingFang TC",
+                "Noto Sans TC",
+                "Hiragino Sans CNS",
+                "system-ui",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="./css/app.css" />
+  </head>
+  <body class="bg-amber-50 text-stone-900 font-sans">
+    <div id="app" class="min-h-dvh flex flex-col px-3 pb-3">
+      <header class="flex items-center justify-between gap-2 py-3">
+        <button
+          id="how-to"
+          type="button"
+          class="min-h-11 min-w-11 rounded-full bg-white border border-stone-200 text-lg font-semibold"
+        >
+          ?
+        </button>
+        <div class="text-center min-w-0">
+          <h1 id="title" class="text-2xl font-bold tracking-wide">部首</h1>
+          <p id="hint" class="text-sm text-stone-500 truncate">本題部件</p>
+        </div>
+        <button
+          id="new-game"
+          type="button"
+          class="min-h-11 px-3 rounded-full bg-white border border-stone-200 text-sm font-semibold"
+        >
+          換題
+        </button>
+      </header>
+
+      <main class="flex-1 flex flex-col items-center justify-center gap-4 min-w-0">
+        <p class="text-center text-stone-600 text-sm leading-6 px-2">
+          用常見漢字部件合成謎字。綠：位置正確；黃：有此部件但位置不同。
+        </p>
+        <div id="grid" class="grid gap-1.5 w-full max-w-[22rem] px-1"></div>
+        <button
+          id="submit-top"
+          type="button"
+          class="hidden min-h-12 px-6 rounded-xl bg-emerald-700 text-white text-lg font-semibold"
+        >
+          送出
+        </button>
+      </main>
+
+      <section
+        id="keyboard"
+        class="mt-3 flex flex-col gap-1.5 w-full max-w-[28rem] mx-auto"
+      ></section>
+    </div>
+
+    <div
+      id="toast"
+      class="fixed left-1/2 top-20 -translate-x-1/2 opacity-0 pointer-events-none z-20 rounded-full bg-stone-900 text-white px-4 py-2 text-base font-medium transition-opacity"
+    ></div>
+
+    <div id="modal" class="hidden fixed inset-0 z-30 bg-black/40 px-5 flex items-end sm:items-center justify-center">
+      <div class="w-full max-w-sm rounded-3xl bg-white p-6 mb-[max(1rem,env(safe-area-inset-bottom))]">
+        <p data-modal-title class="text-xl font-bold"></p>
+        <p data-modal-reveal class="text-6xl font-bold text-center py-6"></p>
+        <p data-modal-body class="text-stone-600 text-base leading-7"></p>
+        <button
+          id="play-again"
+          type="button"
+          class="mt-6 min-h-12 w-full rounded-2xl bg-emerald-700 text-white text-lg font-semibold"
+        >
+          再玩一題
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
