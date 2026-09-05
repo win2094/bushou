@@ -56,6 +56,18 @@
 
       <main class="flex-1 flex flex-col gap-3 min-w-0">
         <p id="riddle" class="text-center text-lg font-medium leading-8 px-1"></p>
+        <div
+          id="clues"
+          class="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-base leading-7 whitespace-pre-line"
+        ></div>
+        <button
+          id="more-hint"
+          type="button"
+          class="min-h-12 w-full rounded-xl bg-white border border-stone-200 text-base font-semibold"
+        >
+          再要一個提示
+        </button>
+        <p class="text-sm text-stone-500">有「本題」嘅結構就係答案要用嗰個；砌中間字可以揀第二個結構。</p>
         <div id="structures" class="flex gap-2"></div>
         <div id="bench" class="flex items-center gap-2"></div>
         <div id="history" class="flex flex-col gap-1.5"></div>

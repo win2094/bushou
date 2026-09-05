@@ -19,10 +19,16 @@ function primitivesOf(token, seen = new Set()) {
 /**
  * @param {import("./data.js").PUZZLES[number]} puzzle
  */
+export function canonicalRecipe(char) {
+  const list = RECIPES.filter((item) => item.char === char);
+  return list.slice().sort((a, b) => a.parts.length - b.parts.length)[0] || null;
+}
+
 export class GameEngine {
   constructor(puzzle) {
     this.puzzle = puzzle;
-    this.structure = null;
+    this.goal = canonicalRecipe(puzzle.char);
+    this.structure = this.goal?.structure || null;
     /** @type {string[]} */
     this.slots = [];
     /** @type {string[]} */
@@ -31,8 +37,7 @@ export class GameEngine {
     this.history = [];
     this.status = "playing";
     this.lastFeedback = "";
-    this.revealedStructure = false;
-    this.revealedPart = "";
+    this.knownParts = startingKnownParts(this.goal, puzzle);
   }
 
   get structureInfo() {
@@ -101,27 +106,28 @@ export class GameEngine {
       this.status = "lost";
     }
 
-    this.unlockHints();
     this.lastFeedback = explainAttempt({
       parts: this.slots,
       structure: this.structure,
       result,
       target: this.puzzle.char,
       remaining: MAX_GUESSES - this.history.length,
-      revealedStructure: this.revealedStructure,
-      revealedPart: this.revealedPart,
+      knownParts: this.knownParts,
+      goal: this.goal,
     });
     this.slots = [];
 
     return { fused: true, result, status: this.status, feedback: this.lastFeedback };
   }
 
-  unlockHints() {
-    if (this.history.length >= 1) this.revealedStructure = true;
-    if (this.history.length >= 2 && !this.revealedPart) {
-      const targetRecipe = RECIPES.find((item) => item.char === this.puzzle.char);
-      this.revealedPart = targetRecipe?.parts[0] || "";
+  useHint() {
+    if (this.status !== "playing" || !this.goal) return { ok: false, message: "而家唔使提示" };
+    const next = this.goal.parts.find((part) => !this.knownParts.includes(part));
+    if (!next) {
+      return { ok: false, message: "提示已經全部開咗。跟住示範方法砌。" };
     }
+    this.knownParts.push(next);
+    return { ok: true, message: `新提示：會用到「${next}」` };
   }
 
   snapshot() {
@@ -134,9 +140,9 @@ export class GameEngine {
       status: this.status,
       canFuse: this.canFuse(),
       feedback: this.lastFeedback,
-      revealedStructure: this.revealedStructure,
-      revealedPart: this.revealedPart,
       remaining: MAX_GUESSES - this.history.length,
+      clues: buildClues(this),
+      goalStructure: this.goal?.structure || null,
     };
   }
 }
@@ -161,12 +167,8 @@ export function explainAttempt(input) {
     text += "\n呢次用嘅部件同本題完全唔重疊，換一批再試。";
   }
 
-  if (input.revealedStructure) {
-    const need = RECIPES.find((item) => item.char === input.target);
-    if (need) text += `\n提示：本題係「${STRUCTURES[need.structure].label}」結構。`;
-  }
-  if (input.revealedPart) {
-    text += `\n提示：合成途中會用到「${input.revealedPart}」。`;
+  if (input.goal) {
+    text += `\n記住：本題要用「${STRUCTURES[input.goal.structure].label}」，已知 ${input.knownParts.join("、")}。`;
   }
   text += input.remaining > 0 ? `\n仲有 ${input.remaining} 次合成。` : "\n機會用晒。";
   return text;
@@ -185,4 +187,30 @@ export function pickDailyPuzzle(date = new Date()) {
 
 export function pickRandomPuzzle() {
   return PUZZLES[Math.floor(Math.random() * PUZZLES.length)];
+}
+
+function startingKnownParts(goal, puzzle) {
+  if (!goal) return [];
+  const compound = goal.parts.find((part) => RECIPES.some((item) => item.char === part));
+  const primitive = goal.parts.find((part) => part !== compound);
+  if (puzzle.depth >= 2 && primitive) return [primitive];
+  return [goal.parts[0]];
+}
+
+function buildClues(engine) {
+  const goal = engine.goal;
+  if (!goal) return "未有題目。";
+  const label = STRUCTURES[goal.structure].label;
+  const mid = goal.parts.find((part) => RECIPES.some((item) => item.char === part));
+  const lines = [
+    `示範（唔係本題）：左右 木 + 木 = 林。砌出嚟可以再用來合成。`,
+    `本題結構：${label}（${STRUCTURES[goal.structure].slots} 格）`,
+    `已知部件：${engine.knownParts.join("、")}`,
+  ];
+  if (engine.puzzle.depth >= 2 && mid) {
+    lines.push(`呢題要先砌中間字，唔係一次過估晒。`);
+  } else {
+    lines.push(`一格已知，估另一格，揀啱結構再撳合成。`);
+  }
+  return lines.join("\n");
 }

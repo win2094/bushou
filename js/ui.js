@@ -21,7 +21,7 @@ export class GameView {
       btn.type = "button";
       btn.dataset.structure = info.id;
       btn.textContent = info.label;
-      btn.className = structureClass(false);
+      btn.className = structureClass(false, false);
       btn.addEventListener("click", () => this.handlers.onStructure(info.id));
       this.els.structures.appendChild(btn);
     });
@@ -81,9 +81,8 @@ export class GameView {
     this.renderInventory(state);
     this.els.hint.textContent = `砌 1 個漢字 · 剩 ${state.remaining} 次合成`;
     this.els.riddle.textContent = state.puzzle.hint;
-    this.els.feedback.textContent =
-      state.feedback ||
-      "先揀結構，再放入部件。可以先砌中間字（木+木=林），再攞去砌本題。";
+    this.els.clues.textContent = state.clues;
+    this.els.feedback.textContent = state.feedback || "跟住上面提示砌。示範：木 + 木，左右，合成「林」。";
     const fuseBtn = this.els.keyboard.querySelector('[data-action="fuse"]');
     if (fuseBtn) {
       fuseBtn.disabled = !state.canFuse;
@@ -93,7 +92,11 @@ export class GameView {
 
   renderStructures(state) {
     this.els.structures.querySelectorAll("[data-structure]").forEach((btn) => {
-      btn.className = structureClass(btn.dataset.structure === state.structure);
+      const recommended = btn.dataset.structure === state.goalStructure;
+      btn.className = structureClass(btn.dataset.structure === state.structure, recommended);
+      btn.textContent = recommended
+        ? `${STRUCTURES[btn.dataset.structure].label}·本題`
+        : STRUCTURES[btn.dataset.structure].label;
     });
   }
 
@@ -174,12 +177,14 @@ export class GameView {
   }
 }
 
-function structureClass(active) {
+function structureClass(active, recommended) {
   return [
     "min-h-12 flex-1 rounded-xl text-lg font-semibold border-2",
     active
       ? "bg-emerald-700 text-white border-emerald-700"
-      : "bg-white text-stone-800 border-stone-200",
+      : recommended
+        ? "bg-emerald-50 text-emerald-900 border-emerald-400"
+        : "bg-white text-stone-800 border-stone-200",
   ].join(" ");
 }
 

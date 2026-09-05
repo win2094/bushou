@@ -11,6 +11,7 @@ const els = {
   modal: document.querySelector("#modal"),
   hint: document.querySelector("#hint"),
   riddle: document.querySelector("#riddle"),
+  clues: document.querySelector("#clues"),
   feedback: document.querySelector("#feedback"),
 };
 
@@ -38,6 +39,11 @@ const view = new GameView(els, {
   onFuse: fuse,
 });
 
+document.querySelector("#more-hint").addEventListener("click", () => {
+  const result = engine.useHint();
+  view.showToast(result.message);
+  view.render(engine.snapshot());
+});
 document.querySelector("#new-game").addEventListener("click", startRandomGame);
 document.querySelector("#play-again").addEventListener("click", () => {
   if (view.modalMode === "help") {
@@ -50,7 +56,7 @@ document.querySelector("#how-to").addEventListener("click", () => {
   view.showModal({
     title: "點玩",
     reveal: "林→淋",
-    body: "唔係估一串格子。你要揀結構，再合成漢字。例如木+木砌出林，林可以留低再加水旁砌淋。砌中謎題先算贏，有 5 次合成。",
+    body: "綠色提示一開局就話你知結構同至少一個部件。跟示範：揀左右，撳木，再撳木，撳合成，出林。林會留低再攞去砌本題。唔識就撳再要一個提示。",
     action: "明白",
     mode: "help",
   });
@@ -92,3 +98,8 @@ function startRandomGame() {
 }
 
 view.render(engine.snapshot());
+
+if (!window.localStorage.getItem("bushou-taught")) {
+  document.querySelector("#how-to").click();
+  window.localStorage.setItem("bushou-taught", "1");
+}
