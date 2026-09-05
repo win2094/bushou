@@ -27,6 +27,23 @@ body {
 #app {
   width: min(100%, 28rem);
   margin-inline: auto;
+  padding-bottom: 17rem;
+}
+
+#keyboard {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100%, 28rem);
+  padding: 0.5rem 0.75rem calc(0.5rem + var(--sab));
+  background: #fffbeb;
+  border-top: 1px solid #e7e5e4;
+  z-index: 20;
+}
+
+#history .hist-row {
+  min-height: 2.25rem;
 }
 
 button {

@@ -127,7 +127,7 @@ export class GameView {
       const item = state.history[i];
       const row = document.createElement("div");
       row.className =
-        "min-h-12 rounded-xl border border-stone-200 bg-white px-3 flex items-center justify-between gap-2 text-base";
+        "hist-row rounded-lg border border-stone-200 bg-white px-3 flex items-center justify-between gap-2 text-sm";
       if (!item) {
         row.innerHTML = `<span class="text-stone-300">第 ${i + 1} 次</span><span class="text-stone-300">—</span>`;
       } else if (item.result) {

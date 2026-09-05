@@ -98,8 +98,3 @@ function startRandomGame() {
 }
 
 view.render(engine.snapshot());
-
-if (!window.localStorage.getItem("bushou-taught")) {
-  document.querySelector("#how-to").click();
-  window.localStorage.setItem("bushou-taught", "1");
-}
