@@ -42,7 +42,7 @@ export class GameEngine {
    */
   addPart(part) {
     if (this.status !== "playing") return false;
-    if (this.currentGuess.length >= SLOTS_PER_GUESS) return false;
+    if (this.currentGuess.length >= this.answer.length) return false;
     this.currentGuess.push(part);
     return true;
   }
@@ -79,7 +79,7 @@ export class GameEngine {
         submitted: false,
         evaluation: [],
         status: this.status,
-        message: `本題由 ${this.answer.length} 個部件組成`,
+        message: `呢題要 ${this.answer.length} 個部件先可以送出`,
       };
     }
 

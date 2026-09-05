@@ -2,6 +2,7 @@ import { KEYBOARD_ROWS, MAX_GUESSES, SLOTS_PER_GUESS } from "./data.js";
 import { keyboardHints } from "./game.js";
 
 const TILE_COLORS = {
+  unused: "bg-stone-100 border-stone-200 text-transparent",
   empty: "bg-white border-stone-300 text-stone-800",
   filled: "bg-white border-stone-800 text-stone-900",
   correct: "bg-emerald-600 border-emerald-600 text-white",
@@ -25,6 +26,7 @@ export class GameView {
    *   modal: HTMLElement,
    *   title: HTMLElement,
    *   hint: HTMLElement,
+   *   goal: HTMLElement,
    *   submit: HTMLButtonElement,
    * }} els
    * @param {{
@@ -36,6 +38,7 @@ export class GameView {
   constructor(els, handlers) {
     this.els = els;
     this.handlers = handlers;
+    this.modalMode = "result";
     this.buildGrid();
     this.buildKeyboard();
   }
@@ -114,7 +117,9 @@ export class GameView {
   render(state) {
     this.renderGrid(state);
     this.renderKeyboard(state);
-    this.els.hint.textContent = `本題 ${state.puzzle.parts.length} 個部件`;
+    const n = state.puzzle.parts.length;
+    this.els.hint.textContent = `砌 1 個漢字 · 用 ${n} 個部件`;
+    this.els.goal.textContent = `？ = ${Array.from({ length: n }, () => "□").join(" + ")}`;
     this.els.submit.disabled = !state.canSubmit;
     this.els.submit.classList.toggle("opacity-40", !state.canSubmit);
   }
@@ -126,10 +131,12 @@ export class GameView {
     for (let r = 0; r < MAX_GUESSES; r += 1) {
       for (let c = 0; c < SLOTS_PER_GUESS; c += 1) {
         const tile = this.els.grid.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-        const letter = state.guesses[r][c] || "";
-        const evalState = state.evaluations[r][c];
-        const isCurrent = r === state.rowIndex && state.status === "playing";
-        const visual = evalState !== "empty" ? evalState : letter ? "filled" : "empty";
+        const needed = state.puzzle.parts.length;
+        const unused = c >= needed;
+        const letter = unused ? "" : state.guesses[r][c] || "";
+        const evalState = unused ? "unused" : state.evaluations[r][c];
+        const isCurrent = !unused && r === state.rowIndex && state.status === "playing";
+        const visual = unused ? "unused" : evalState !== "empty" ? evalState : letter ? "filled" : "empty";
         tile.textContent = letter;
         tile.className = tileClass(visual);
         tile.classList.toggle("ring-2", isCurrent && c === state.guesses[r].length);
@@ -164,12 +171,14 @@ export class GameView {
   }
 
   /**
-   * @param {{ title: string, body: string, reveal: string }} content
+   * @param {{ title: string, body: string, reveal: string, action?: string, mode?: string }} content
    */
   showModal(content) {
+    this.modalMode = content.mode || "result";
     this.els.modal.querySelector("[data-modal-title]").textContent = content.title;
     this.els.modal.querySelector("[data-modal-body]").textContent = content.body;
     this.els.modal.querySelector("[data-modal-reveal]").textContent = content.reveal;
+    this.els.modal.querySelector("#play-again").textContent = content.action || "再玩一題";
     this.els.modal.classList.remove("hidden");
   }
 
