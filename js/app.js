@@ -1,23 +1,32 @@
 import { GameEngine, pickDailyPuzzle, pickRandomPuzzle } from "./game.js";
 import { GameView } from "./ui.js";
+import { RECIPES, STRUCTURES } from "./data.js";
 
 const els = {
-  grid: document.querySelector("#grid"),
+  structures: document.querySelector("#structures"),
+  bench: document.querySelector("#bench"),
+  history: document.querySelector("#history"),
   keyboard: document.querySelector("#keyboard"),
   toast: document.querySelector("#toast"),
   modal: document.querySelector("#modal"),
-  title: document.querySelector("#title"),
   hint: document.querySelector("#hint"),
-  goal: document.querySelector("#goal"),
+  riddle: document.querySelector("#riddle"),
   feedback: document.querySelector("#feedback"),
-  submit: document.querySelector("#submit-top"),
 };
 
 let engine = new GameEngine(pickDailyPuzzle());
 const view = new GameView(els, {
+  onStructure: (id) => {
+    engine.selectStructure(id);
+    view.render(engine.snapshot());
+  },
   onPart: (part) => {
+    if (!engine.structure) {
+      view.showToast("先揀左右、上下或者品字");
+      return;
+    }
     if (!engine.addPart(part)) {
-      view.showToast(`呢題淨係要 ${engine.answer.length} 個部件，撳「送出」`);
+      view.showToast("槽滿咗，可以撳合成或者刪除");
       return;
     }
     view.render(engine.snapshot());
@@ -26,10 +35,9 @@ const view = new GameView(els, {
     engine.deletePart();
     view.render(engine.snapshot());
   },
-  onSubmit: submitGuess,
+  onFuse: fuse,
 });
 
-els.submit.addEventListener("click", submitGuess);
 document.querySelector("#new-game").addEventListener("click", startRandomGame);
 document.querySelector("#play-again").addEventListener("click", () => {
   if (view.modalMode === "help") {
@@ -41,36 +49,36 @@ document.querySelector("#play-again").addEventListener("click", () => {
 document.querySelector("#how-to").addEventListener("click", () => {
   view.showModal({
     title: "點玩",
-    reveal: "林",
-    body: "唔係估兩個字，係估 1 個漢字點拆。例如木 + 木 = 林。送出之後綠色係呢格啱，黃色係有呢個部件但排錯，灰色係答案冇。下面會用文字講邊格錯。",
+    reveal: "林→淋",
+    body: "唔係估一串格子。你要揀結構，再合成漢字。例如木+木砌出林，林可以留低再加水旁砌淋。砌中謎題先算贏，有 5 次合成。",
     action: "明白",
     mode: "help",
   });
 });
 
-function submitGuess() {
-  const result = engine.submit();
-  if (!result.submitted) {
-    if (result.message) view.showToast(result.message);
+function fuse() {
+  const result = engine.fuse();
+  if (!result.fused) {
+    view.showToast(result.message);
     view.render(engine.snapshot());
     return;
   }
-
   view.render(engine.snapshot());
-
   if (result.status === "won") {
+    const recipe = RECIPES.find((item) => item.char === engine.puzzle.char);
     view.showModal({
       title: "砌中喇",
-      body: `${engine.puzzle.parts.join(" + ")} = ${engine.puzzle.char}。${engine.puzzle.hint}`,
       reveal: engine.puzzle.char,
+      body: `${STRUCTURES[recipe.structure].label} ${recipe.parts.join(" + ")} = ${engine.puzzle.char}`,
       action: "再玩一題",
       mode: "result",
     });
   } else if (result.status === "lost") {
+    const recipe = RECIPES.find((item) => item.char === engine.puzzle.char);
     view.showModal({
       title: "答案係呢個字",
-      body: `${engine.puzzle.parts.join(" + ")} = ${engine.puzzle.char}`,
       reveal: engine.puzzle.char,
+      body: `其中一條路：${STRUCTURES[recipe.structure].label} ${recipe.parts.join(" + ")}`,
       action: "再玩一題",
       mode: "result",
     });

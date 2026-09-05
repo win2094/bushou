@@ -42,7 +42,7 @@
           ?
         </button>
         <div class="text-center min-w-0">
-          <h1 id="title" class="text-2xl font-bold tracking-wide">部首</h1>
+          <h1 class="text-2xl font-bold tracking-wide">部首</h1>
           <p id="hint" class="text-sm text-stone-500 truncate">砌 1 個漢字</p>
         </div>
         <button
@@ -54,27 +54,15 @@
         </button>
       </header>
 
-      <main class="flex-1 flex flex-col items-center justify-center gap-4 min-w-0">
-        <p id="goal" class="text-center text-xl font-semibold tracking-wide">？ = □ + □</p>
-        <div class="flex flex-wrap justify-center gap-2 text-xs font-medium px-1">
-          <span class="rounded-full bg-emerald-600 text-white px-3 py-1">綠 = 呢格啱</span>
-          <span class="rounded-full bg-amber-400 text-stone-900 px-3 py-1">黃 = 有但排錯</span>
-          <span class="rounded-full bg-stone-400 text-white px-3 py-1">灰 = 答案冇</span>
-        </div>
-        <div id="grid" class="grid gap-1.5 w-full max-w-[22rem] px-1"></div>
+      <main class="flex-1 flex flex-col gap-3 min-w-0">
+        <p id="riddle" class="text-center text-lg font-medium leading-8 px-1"></p>
+        <div id="structures" class="flex gap-2"></div>
+        <div id="bench" class="flex items-center gap-2"></div>
+        <div id="history" class="flex flex-col gap-1.5"></div>
         <div
           id="feedback"
-          class="w-full max-w-[22rem] rounded-2xl bg-white border border-stone-200 px-4 py-3 text-base leading-7 text-stone-800 whitespace-pre-line"
-        >
-          揀齊部件再撳「送出」，會即刻話你知邊格啱、邊格錯。
-        </div>
-        <button
-          id="submit-top"
-          type="button"
-          class="hidden min-h-12 px-6 rounded-xl bg-emerald-700 text-white text-lg font-semibold"
-        >
-          送出
-        </button>
+          class="rounded-2xl bg-white border border-stone-200 px-4 py-3 text-base leading-7 whitespace-pre-line"
+        ></div>
       </main>
 
       <section
