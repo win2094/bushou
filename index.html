@@ -8,101 +8,38 @@
     />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="theme-color" content="#fffbeb" />
-    <title>部首 — 漢字解構合成</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: [
-                "PingFang TC",
-                "Noto Sans TC",
-                "Hiragino Sans CNS",
-                "system-ui",
-                "sans-serif",
-              ],
-            },
-          },
-        },
-      };
-    </script>
-    <link rel="stylesheet" href="./css/app.css?v=3" />
+    <meta name="theme-color" content="#f4efe4" />
+    <title>結字 — 漢字 Knotwords</title>
+    <link rel="stylesheet" href="./css/app.css?v=4" />
   </head>
-  <body class="bg-amber-50 text-stone-900 font-sans">
-    <div id="app" class="flex flex-col px-3">
-      <header class="flex items-center justify-between gap-2 py-3">
-        <button
-          id="how-to"
-          type="button"
-          class="min-h-11 min-w-11 rounded-full bg-white border border-stone-200 text-lg font-semibold"
-        >
-          ?
-        </button>
-        <div class="text-center min-w-0">
-          <h1 class="text-2xl font-bold tracking-wide">部首</h1>
-          <p id="hint" class="text-sm text-stone-500 truncate">砌 1 個漢字</p>
+  <body>
+    <div id="app">
+      <header>
+        <button id="how-to" type="button" class="icon-btn">?</button>
+        <div class="titles">
+          <h1>結字</h1>
+          <p id="meta">漢字 Knotwords</p>
         </div>
-        <button
-          id="new-game"
-          type="button"
-          class="min-h-11 px-3 rounded-full bg-white border border-stone-200 text-sm font-semibold"
-        >
-          換題
-        </button>
+        <button id="new-game" type="button" class="text-btn">換題</button>
       </header>
 
-      <main class="flex-1 flex flex-col gap-3 min-w-0">
-        <p id="riddle" class="text-center text-lg font-medium leading-8 px-1"></p>
-        <div
-          id="clues"
-          class="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-base leading-7 whitespace-pre-line"
-        ></div>
-        <button
-          id="more-hint"
-          type="button"
-          class="min-h-12 w-full rounded-xl bg-white border border-stone-200 text-base font-semibold"
-        >
-          再要一個提示
-        </button>
-        <p class="text-sm text-stone-500">有「本題」嘅結構就係答案要用嗰個；砌中間字可以揀第二個結構。</p>
-        <div id="structures" class="flex gap-2"></div>
-        <div id="bench" class="flex items-center gap-2"></div>
-        <div id="history" class="flex flex-col gap-1.5"></div>
-        <div
-          id="feedback"
-          class="rounded-2xl bg-white border border-stone-200 px-4 py-3 text-base leading-7 whitespace-pre-line"
-        ></div>
-      </main>
-
-      <section
-        id="keyboard"
-        class="mt-3 flex flex-col gap-1.5 w-full max-w-[28rem] mx-auto"
-      ></section>
+      <p id="tip" class="tip"></p>
+      <div id="col-banks" class="col-banks"></div>
+      <div id="board" class="board"></div>
+      <button id="hint" type="button" class="text-btn hint-btn">提示一格</button>
     </div>
 
-    <div
-      id="toast"
-      class="fixed left-1/2 top-20 -translate-x-1/2 opacity-0 pointer-events-none z-20 rounded-full bg-stone-900 text-white px-4 py-2 text-base font-medium transition-opacity"
-    ></div>
+    <section id="tray" class="tray"></section>
 
-    <div id="modal" class="hidden fixed inset-0 z-30 bg-black/40 px-5 flex items-end sm:items-center justify-center">
-      <div class="w-full max-w-sm rounded-3xl bg-white p-6 mb-[max(1rem,env(safe-area-inset-bottom))]">
-        <p data-modal-title class="text-xl font-bold"></p>
-        <p data-modal-reveal class="text-6xl font-bold text-center py-6"></p>
-        <p data-modal-body class="text-stone-600 text-base leading-7"></p>
-        <button
-          id="play-again"
-          type="button"
-          class="mt-6 min-h-12 w-full rounded-2xl bg-emerald-700 text-white text-lg font-semibold"
-        >
-          再玩一題
-        </button>
+    <div id="modal" class="modal hide">
+      <div class="sheet">
+        <p data-modal-title class="sheet-title"></p>
+        <p data-modal-reveal class="sheet-reveal"></p>
+        <p data-modal-body class="sheet-body"></p>
+        <button id="play-again" type="button" class="sheet-ok">好</button>
       </div>
     </div>
 
-    <script type="module" src="./js/app.js?v=3"></script>
+    <script type="module" src="./js/app.js?v=4"></script>
   </body>
 </html>

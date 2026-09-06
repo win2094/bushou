@@ -1,100 +1,59 @@
 import { GameEngine, pickDailyPuzzle, pickRandomPuzzle } from "./game.js";
 import { GameView } from "./ui.js";
-import { RECIPES, STRUCTURES } from "./data.js";
 
 const els = {
-  structures: document.querySelector("#structures"),
-  bench: document.querySelector("#bench"),
-  history: document.querySelector("#history"),
-  keyboard: document.querySelector("#keyboard"),
-  toast: document.querySelector("#toast"),
+  colBanks: document.querySelector("#col-banks"),
+  board: document.querySelector("#board"),
+  tray: document.querySelector("#tray"),
+  meta: document.querySelector("#meta"),
+  tip: document.querySelector("#tip"),
   modal: document.querySelector("#modal"),
-  hint: document.querySelector("#hint"),
-  riddle: document.querySelector("#riddle"),
-  clues: document.querySelector("#clues"),
-  feedback: document.querySelector("#feedback"),
 };
 
 let engine = new GameEngine(pickDailyPuzzle());
 const view = new GameView(els, {
-  onStructure: (id) => {
-    engine.selectStructure(id);
+  onSelect: (r, c) => {
+    engine.select(r, c);
     view.render(engine.snapshot());
   },
-  onPart: (part) => {
-    if (!engine.structure) {
-      view.showToast("先揀左右、上下或者品字");
-      return;
+  onPlace: (ch) => {
+    engine.place(ch);
+    view.render(engine.snapshot());
+    if (engine.status === "won") {
+      view.showModal("全部接通", "每一行、每一列都係詞語。", "成");
     }
-    if (!engine.addPart(part)) {
-      view.showToast("槽滿咗，可以撳合成或者刪除");
-      return;
-    }
+  },
+  onClear: () => {
+    engine.clearSelected();
     view.render(engine.snapshot());
   },
-  onDelete: () => {
-    engine.deletePart();
-    view.render(engine.snapshot());
-  },
-  onFuse: fuse,
 });
 
-document.querySelector("#more-hint").addEventListener("click", () => {
-  const result = engine.useHint();
-  view.showToast(result.message);
-  view.render(engine.snapshot());
-});
-document.querySelector("#new-game").addEventListener("click", startRandomGame);
-document.querySelector("#play-again").addEventListener("click", () => {
-  if (view.modalMode === "help") {
-    view.hideModal();
-    return;
-  }
-  startRandomGame();
-});
-document.querySelector("#how-to").addEventListener("click", () => {
-  view.showModal({
-    title: "點玩",
-    reveal: "林→淋",
-    body: "綠色提示一開局就話你知結構同至少一個部件。跟示範：揀左右，撳木，再撳木，撳合成，出林。林會留低再攞去砌本題。唔識就撳再要一個提示。",
-    action: "明白",
-    mode: "help",
-  });
-});
-
-function fuse() {
-  const result = engine.fuse();
-  if (!result.fused) {
-    view.showToast(result.message);
-    view.render(engine.snapshot());
-    return;
-  }
-  view.render(engine.snapshot());
-  if (result.status === "won") {
-    const recipe = RECIPES.find((item) => item.char === engine.puzzle.char);
-    view.showModal({
-      title: "砌中喇",
-      reveal: engine.puzzle.char,
-      body: `${STRUCTURES[recipe.structure].label} ${recipe.parts.join(" + ")} = ${engine.puzzle.char}`,
-      action: "再玩一題",
-      mode: "result",
-    });
-  } else if (result.status === "lost") {
-    const recipe = RECIPES.find((item) => item.char === engine.puzzle.char);
-    view.showModal({
-      title: "答案係呢個字",
-      reveal: engine.puzzle.char,
-      body: `其中一條路：${STRUCTURES[recipe.structure].label} ${recipe.parts.join(" + ")}`,
-      action: "再玩一題",
-      mode: "result",
-    });
-  }
-}
-
-function startRandomGame() {
+document.querySelector("#new-game").addEventListener("click", () => {
   view.hideModal();
   engine = new GameEngine(pickRandomPuzzle());
   view.render(engine.snapshot());
-}
+});
+document.querySelector("#hint").addEventListener("click", () => {
+  engine.hint();
+  view.render(engine.snapshot());
+});
+document.querySelector("#how-to").addEventListener("click", () => {
+  view.showModal(
+    "點玩",
+    "好似 Knotwords：每行每列外面嗰排字，全部都要放進嗰行／列。交點要同時啱橫同直。撳一格，再撳下面可用嘅字。",
+    "字",
+  );
+});
+document.querySelector("#play-again").addEventListener("click", () => {
+  const title = document.querySelector("[data-modal-title]").textContent;
+  if (title === "點玩") {
+    view.hideModal();
+    return;
+  }
+  view.hideModal();
+  engine = new GameEngine(pickRandomPuzzle());
+  view.render(engine.snapshot());
+});
 
 view.render(engine.snapshot());

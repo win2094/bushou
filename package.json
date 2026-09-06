@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Mobile-first Hanzi radical synthesis game (Wordle-like)",
+  "description": "Mobile-first Chinese Knotwords",
   "scripts": {
     "start": "npx --yes serve . -p 4173"
   }

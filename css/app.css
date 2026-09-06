@@ -1,12 +1,20 @@
 :root {
   --sat: env(safe-area-inset-top);
   --sab: env(safe-area-inset-bottom);
-  --sal: env(safe-area-inset-left);
-  --sar: env(safe-area-inset-right);
+  --paper: #f4efe4;
+  --ink: #1c1917;
+  --line: #d6d0c4;
+  --gold: #c4a35a;
+  --used: #a8a29e;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html,
 body {
+  margin: 0;
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
@@ -16,36 +24,222 @@ body {
 
 body {
   min-height: 100dvh;
-  padding-top: var(--sat);
-  padding-bottom: var(--sab);
-  padding-left: var(--sal);
-  padding-right: var(--sar);
-  -webkit-tap-highlight-color: transparent;
-  -webkit-text-size-adjust: 100%;
+  padding: var(--sat) 0 calc(7.5rem + var(--sab));
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "PingFang TC", "Noto Serif TC", "Songti TC", serif;
 }
 
 #app {
   width: min(100%, 28rem);
-  margin-inline: auto;
-  padding-bottom: 17rem;
+  margin: 0 auto;
+  padding: 0.75rem;
 }
 
-#keyboard {
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.titles {
+  text-align: center;
+  min-width: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+#meta,
+.tip {
+  margin: 0.25rem 0 0;
+  color: #57534e;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.tip {
+  margin: 0.75rem 0 0.5rem;
+  text-align: center;
+}
+
+.icon-btn,
+.text-btn {
+  min-height: 2.75rem;
+  border: 1px solid var(--line);
+  background: #fffdf8;
+  border-radius: 999px;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.icon-btn {
+  width: 2.75rem;
+}
+
+.text-btn {
+  padding: 0 0.9rem;
+}
+
+.hint-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.col-banks,
+.board-row {
+  display: grid;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.col-banks {
+  margin-bottom: 0.4rem;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.chip {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  border-radius: 0.35rem;
+  background: #efe8d8;
+}
+
+.chip-used {
+  color: var(--used);
+  text-decoration: line-through;
+  background: transparent;
+}
+
+.cell {
+  aspect-ratio: 1;
+  min-height: 3.6rem;
+  border: 2px solid var(--ink);
+  background: #fffdf8;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cell-on {
+  outline: 3px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.cell-fill {
+  background: #fff;
+}
+
+.tray {
   position: fixed;
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
   width: min(100%, 28rem);
-  padding: 0.5rem 0.75rem calc(0.5rem + var(--sab));
-  background: #fffbeb;
-  border-top: 1px solid #e7e5e4;
-  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.7rem 0.7rem calc(0.7rem + var(--sab));
+  background: #ebe4d4;
+  border-top: 1px solid var(--line);
 }
 
-#history .hist-row {
-  min-height: 2.25rem;
+.tile {
+  min-width: 3.4rem;
+  min-height: 3.4rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: #1c1917;
+  color: #fffdf8;
+  font-size: 1.6rem;
+}
+
+.tile-clear {
+  background: #78716c;
+  font-size: 1rem;
+}
+
+.tray-msg {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  color: #44403c;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 30;
+}
+
+.modal.hide {
+  display: none;
+}
+
+.sheet {
+  width: min(100%, 24rem);
+  background: #fffdf8;
+  border-radius: 1.4rem;
+  padding: 1.25rem;
+  margin-bottom: var(--sab);
+}
+
+.sheet-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.sheet-reveal {
+  margin: 0.8rem 0;
+  text-align: center;
+  font-size: 3.2rem;
+  font-weight: 700;
+}
+
+.sheet-body {
+  margin: 0;
+  line-height: 1.7;
+  color: #44403c;
+}
+
+.sheet-ok {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 1rem;
+  border: 0;
+  border-radius: 1rem;
+  background: #1c1917;
+  color: #fffdf8;
+  font-size: 1.1rem;
 }
 
 button {
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }

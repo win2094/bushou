@@ -1,114 +1,86 @@
-export const MAX_GUESSES = 5;
-
-export const KEYBOARD_ROWS = [
-  ["人", "口", "木", "水", "火", "土"],
-  ["日", "月", "金", "心", "手", "目"],
-  ["女", "子", "山", "石", "田", "禾"],
-  ["竹", "車", "門", "馬", "雨", "耳"],
-  ["宀", "亻", "氵", "刂", "阝", "辶"],
-  ["力", "十", "工", "言", "干", "斤"],
-];
-
-export const STRUCTURES = {
-  lr: { id: "lr", label: "左右", slots: 2 },
-  tb: { id: "tb", label: "上下", slots: 2 },
-  pin: { id: "pin", label: "品字", slots: 3 },
-};
-
-/** @typedef {{ char: string, structure: string, parts: string[] }} Recipe */
-
-/** Every fuseable combination, including mid-way compounds. */
-export const RECIPES = [
-  { char: "林", structure: "lr", parts: ["木", "木"] },
-  { char: "森", structure: "pin", parts: ["木", "木", "木"] },
-  { char: "森", structure: "tb", parts: ["木", "林"] },
-  { char: "休", structure: "lr", parts: ["人", "木"] },
-  { char: "好", structure: "lr", parts: ["女", "子"] },
-  { char: "明", structure: "lr", parts: ["日", "月"] },
-  { char: "品", structure: "pin", parts: ["口", "口", "口"] },
-  { char: "呂", structure: "tb", parts: ["口", "口"] },
-  { char: "炎", structure: "tb", parts: ["火", "火"] },
-  { char: "焱", structure: "pin", parts: ["火", "火", "火"] },
-  { char: "焱", structure: "tb", parts: ["火", "炎"] },
-  { char: "安", structure: "tb", parts: ["宀", "女"] },
-  { char: "相", structure: "lr", parts: ["木", "目"] },
-  { char: "想", structure: "tb", parts: ["相", "心"] },
-  { char: "想", structure: "pin", parts: ["木", "目", "心"] },
-  { char: "思", structure: "tb", parts: ["田", "心"] },
-  { char: "看", structure: "tb", parts: ["手", "目"] },
-  { char: "秋", structure: "lr", parts: ["禾", "火"] },
-  { char: "和", structure: "lr", parts: ["禾", "口"] },
-  { char: "閃", structure: "lr", parts: ["門", "人"] },
-  { char: "問", structure: "lr", parts: ["門", "口"] },
-  { char: "間", structure: "lr", parts: ["門", "日"] },
-  { char: "聞", structure: "lr", parts: ["門", "耳"] },
-  { char: "闖", structure: "lr", parts: ["門", "馬"] },
-  { char: "朋", structure: "lr", parts: ["月", "月"] },
-  { char: "从", structure: "lr", parts: ["人", "人"] },
-  { char: "众", structure: "pin", parts: ["人", "人", "人"] },
-  { char: "众", structure: "tb", parts: ["人", "从"] },
-  { char: "磊", structure: "pin", parts: ["石", "石", "石"] },
-  { char: "鑫", structure: "pin", parts: ["金", "金", "金"] },
-  { char: "淼", structure: "pin", parts: ["水", "水", "水"] },
-  { char: "嗎", structure: "lr", parts: ["口", "馬"] },
-  { char: "雷", structure: "tb", parts: ["雨", "田"] },
-  { char: "利", structure: "lr", parts: ["禾", "刂"] },
-  { char: "杏", structure: "tb", parts: ["木", "口"] },
-  { char: "呆", structure: "tb", parts: ["口", "木"] },
-  { char: "吐", structure: "lr", parts: ["口", "土"] },
-  { char: "圭", structure: "tb", parts: ["土", "土"] },
-  { char: "坐", structure: "pin", parts: ["人", "人", "土"] },
-  { char: "坐", structure: "tb", parts: ["从", "土"] },
-  { char: "仙", structure: "lr", parts: ["亻", "山"] },
-  { char: "伙", structure: "lr", parts: ["亻", "火"] },
-  { char: "們", structure: "lr", parts: ["亻", "門"] },
-  { char: "沐", structure: "lr", parts: ["氵", "木"] },
-  { char: "淋", structure: "lr", parts: ["氵", "林"] },
-  { char: "淋", structure: "pin", parts: ["氵", "木", "木"] },
-  { char: "江", structure: "lr", parts: ["氵", "工"] },
-  { char: "炅", structure: "tb", parts: ["日", "火"] },
-  { char: "昌", structure: "tb", parts: ["日", "日"] },
-  { char: "晶", structure: "pin", parts: ["日", "日", "日"] },
-  { char: "晶", structure: "tb", parts: ["日", "昌"] },
-  { char: "焚", structure: "tb", parts: ["林", "火"] },
-  { char: "焚", structure: "pin", parts: ["木", "木", "火"] },
-  { char: "灶", structure: "lr", parts: ["火", "土"] },
-  { char: "男", structure: "tb", parts: ["田", "力"] },
-  { char: "轟", structure: "pin", parts: ["車", "車", "車"] },
-  { char: "信", structure: "lr", parts: ["人", "言"] },
-  { char: "早", structure: "tb", parts: ["日", "十"] },
-  { char: "旱", structure: "tb", parts: ["日", "干"] },
-  { char: "功", structure: "lr", parts: ["工", "力"] },
-  { char: "近", structure: "lr", parts: ["辶", "斤"] },
-];
-
-/**
- * Targets that need a mid-way compound or a 3-part layout.
- * These are the main puzzles; 2-part recipes stay as stepping stones.
- */
 export const PUZZLES = [
-  { id: "xiang", char: "想", hint: "心裏面先見到樹木同眼睛", depth: 2 },
-  { id: "lin2", char: "淋", hint: "水行埋樹林度", depth: 2 },
-  { id: "fen", char: "焚", hint: "樹林着咗火", depth: 2 },
-  { id: "sen", char: "森", hint: "樹外再加樹，密到睇唔到天", depth: 2 },
-  { id: "yan3", char: "焱", hint: "火上加火都未夠", depth: 2 },
-  { id: "jing", char: "晶", hint: "日光疊到發亮", depth: 2 },
-  { id: "zuo", char: "坐", hint: "兩個人歇喺地上", depth: 2 },
-  { id: "zhong", char: "众", hint: "人再加人，就成一堆", depth: 2 },
-  { id: "si", char: "思", hint: "心上有塊田", depth: 1 },
-  { id: "an", char: "安", hint: "屋簷底下有個女", depth: 1 },
-  { id: "wen2", char: "聞", hint: "門裏面用耳", depth: 1 },
-  { id: "chuang", char: "闖", hint: "馬衝入門", depth: 1 },
-  { id: "jian", char: "間", hint: "門縫透入日光", depth: 1 },
-  { id: "men", char: "們", hint: "人企喺門旁，唔止一個", depth: 1 },
-  { id: "lei", char: "磊", hint: "石疊石", depth: 1 },
-  { id: "xin", char: "鑫", hint: "金再加金", depth: 1 },
-  { id: "miao", char: "淼", hint: "水連水連水", depth: 1 },
-  { id: "hong", char: "轟", hint: "車並排衝過去", depth: 1 },
-  { id: "kan", char: "看", hint: "手搭住眼眉望", depth: 1 },
-  { id: "nan", char: "男", hint: "田裏出力", depth: 1 },
-  { id: "lei2", char: "雷", hint: "雨落喺田上", depth: 1 },
-  { id: "qiu", char: "秋", hint: "禾成熟到似着火", depth: 1 },
-  { id: "xin3", char: "信", hint: "人講出嚟先算數", depth: 1 },
-  { id: "xian", char: "仙", hint: "人入咗山", depth: 1 },
+  {
+    id: "zhongguo",
+    title: "二字",
+    solution: [
+      ["中", "國"],
+      ["人", "民"],
+    ],
+  },
+  {
+    id: "chuntian",
+    title: "二字",
+    solution: [
+      ["春", "天"],
+      ["天", "氣"],
+    ],
+  },
+  {
+    id: "huoche",
+    title: "二字",
+    solution: [
+      ["火", "車"],
+      ["車", "站"],
+    ],
+  },
+  {
+    id: "riben",
+    title: "二字",
+    solution: [
+      ["日", "本"],
+      ["本", "地"],
+    ],
+  },
+  {
+    id: "daxiao",
+    title: "二字",
+    solution: [
+      ["大", "小"],
+      ["小", "孩"],
+    ],
+  },
+  {
+    id: "shouzu",
+    title: "二字",
+    solution: [
+      ["手", "足"],
+      ["足", "夠"],
+    ],
+  },
+  {
+    id: "qingrenjie",
+    title: "三字",
+    solution: [
+      ["心", "情", "好"],
+      ["情", "人", "節"],
+      ["好", "節", "日"],
+    ],
+  },
+  {
+    id: "huochezhan",
+    title: "三字",
+    solution: [
+      ["火", "車", "站"],
+      ["車", "廂", "門"],
+      ["站", "門", "口"],
+    ],
+  },
+  {
+    id: "daxuesheng",
+    title: "三字",
+    solution: [
+      ["大", "學", "生"],
+      ["學", "校", "長"],
+      ["生", "長", "期"],
+    ],
+  },
+  {
+    id: "laoshifu",
+    title: "三字",
+    solution: [
+      ["老", "師", "父"],
+      ["師", "範", "生"],
+      ["父", "生", "日"],
+    ],
+  },
 ];
