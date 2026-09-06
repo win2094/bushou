@@ -1,19 +1,47 @@
-const sounds = {
-  win: new Audio("./audio/win.wav"),
-  word: new Audio("./audio/word.wav"),
-  miss: new Audio("./audio/miss.wav"),
+const urls = {
+  win: new URL("../audio/win.wav", import.meta.url).href,
+  word: new URL("../audio/word.wav", import.meta.url).href,
+  miss: new URL("../audio/miss.wav", import.meta.url).href,
 };
 
-Object.values(sounds).forEach((audio) => {
-  audio.preload = "auto";
-});
+const players = {};
+
+function getPlayer(name) {
+  if (!players[name]) {
+    const audio = new Audio(urls[name]);
+    audio.preload = "auto";
+    players[name] = audio;
+  }
+  return players[name];
+}
+
+export function unlockAudio() {
+  Object.keys(urls).forEach((name) => {
+    const audio = getPlayer(name);
+    audio.muted = true;
+    audio.play()
+      .then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = false;
+      })
+      .catch(() => {
+        audio.muted = false;
+      });
+  });
+}
 
 export function playSfx(name) {
-  const src = sounds[name];
-  if (!src) return;
-  const clip = src.cloneNode();
-  clip.volume = name === "win" ? 0.9 : 0.75;
-  clip.play().catch(() => {});
+  const audio = getPlayer(name);
+  audio.muted = false;
+  audio.volume = name === "miss" ? 0.8 : 1;
+  try {
+    audio.currentTime = 0;
+  } catch {
+    /* ignore */
+  }
+  const start = audio.play();
+  if (start) start.catch(() => {});
 }
 
 export function showToast(el, text, kind) {

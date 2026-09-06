@@ -1,6 +1,6 @@
 import { GameEngine } from "./game.js";
 import { GameView } from "./ui.js";
-import { launchFireworks, playSfx, showToast } from "./feedback.js";
+import { launchFireworks, playSfx, showToast, unlockAudio } from "./feedback.js";
 
 const els = {
   clue: document.querySelector("#clue"),
@@ -12,6 +12,8 @@ const els = {
   toast: document.querySelector("#toast"),
   fireworks: document.querySelector("#fireworks"),
 };
+
+document.addEventListener("pointerdown", unlockAudio, { once: true });
 
 let engine = new GameEngine(1);
 let nextTimer = 0;
@@ -56,7 +58,8 @@ document.querySelector("#how-to").addEventListener("click", () => {
 
 function handleResult(result) {
   if (result.kind === "won") {
-    playSfx("win");
+    playSfx("word");
+    window.setTimeout(() => playSfx("win"), 180);
     showToast(els.toast, result.message, "win");
     launchFireworks(els.fireworks);
     window.clearTimeout(nextTimer);
