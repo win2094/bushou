@@ -71,6 +71,7 @@ function handleResult(result) {
     return;
   }
   if (result.kind === "ok") {
+    playSfx("word");
     showToast(els.toast, result.message, "ok");
     return;
   }

@@ -1,5 +1,6 @@
 const sounds = {
   win: new Audio("./audio/win.wav"),
+  word: new Audio("./audio/word.wav"),
   miss: new Audio("./audio/miss.wav"),
 };
 
