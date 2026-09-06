@@ -7,39 +7,41 @@
       content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
     />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#f4efe4" />
-    <title>結字 — 漢字 Knotwords</title>
-    <link rel="stylesheet" href="./css/app.css?v=4" />
+    <meta name="theme-color" content="#f6f1e6" />
+    <title>填字</title>
+    <link rel="stylesheet" href="./css/app.css?v=5" />
   </head>
   <body>
     <div id="app">
       <header>
         <button id="how-to" type="button" class="icon-btn">?</button>
         <div class="titles">
-          <h1>結字</h1>
-          <p id="meta">漢字 Knotwords</p>
+          <h1>填字</h1>
+          <p id="level">第 1 關</p>
         </div>
-        <button id="new-game" type="button" class="text-btn">換題</button>
+        <button id="next" type="button" class="text-btn">下一關</button>
       </header>
 
-      <p id="tip" class="tip"></p>
-      <div id="col-banks" class="col-banks"></div>
-      <div id="board" class="board"></div>
-      <button id="hint" type="button" class="text-btn hint-btn">提示一格</button>
+      <p id="clue" class="clue"></p>
+      <div id="grid" class="grid"></div>
     </div>
 
-    <section id="tray" class="tray"></section>
+    <footer class="dock">
+      <div id="bank" class="bank-grid"></div>
+      <div class="dock-bar">
+        <button id="clear" type="button">清空</button>
+        <button id="hint" type="button">答案提示</button>
+      </div>
+    </footer>
 
     <div id="modal" class="modal hide">
       <div class="sheet">
         <p data-modal-title class="sheet-title"></p>
-        <p data-modal-reveal class="sheet-reveal"></p>
         <p data-modal-body class="sheet-body"></p>
-        <button id="play-again" type="button" class="sheet-ok">好</button>
+        <button id="play-again" type="button" class="sheet-ok">下一題</button>
       </div>
     </div>
 
-    <script type="module" src="./js/app.js?v=4"></script>
+    <script type="module" src="./js/app.js?v=5"></script>
   </body>
 </html>

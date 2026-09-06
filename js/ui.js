@@ -5,113 +5,70 @@ export class GameView {
   }
 
   render(state) {
-    this.renderColBanks(state);
-    this.renderBoard(state);
-    this.renderTray(state);
-    this.els.meta.textContent = `${state.puzzle.title} · ${state.size}×${state.size}`;
-    if (state.status === "won") {
-      this.els.tip.textContent = "全部詞語都通咗。";
-    } else {
-      this.els.tip.textContent = "撳一格，再撳下面可用嘅字。橫直都要砌成詞。";
-    }
+    this.els.clue.textContent = state.clueText;
+    this.els.level.textContent = `第 ${state.level} 關`;
+    this.renderGrid(state);
+    this.renderBank(state);
   }
 
-  renderColBanks(state) {
-    const box = this.els.colBanks;
-    box.style.gridTemplateColumns = `3.2rem repeat(${state.size}, minmax(0, 1fr))`;
+  renderGrid(state) {
+    const box = this.els.grid;
+    box.style.gridTemplateColumns = `repeat(${state.cols}, minmax(0, 1fr))`;
     box.replaceChildren();
-    box.appendChild(corner());
-    for (let c = 0; c < state.size; c += 1) {
-      box.appendChild(bankStack(state.colBanks[c], state.colUsed[c]));
-    }
-  }
+    const active = new Set(state.slot.cells.map((cell) => `${cell.r},${cell.c}`));
+    const starts = {};
+    state.slots.forEach((slot) => {
+      const key = `${slot.cells[0].r},${slot.cells[0].c}`;
+      starts[key] = slot.num;
+    });
 
-  renderBoard(state) {
-    const box = this.els.board;
-    box.replaceChildren();
-    for (let r = 0; r < state.size; r += 1) {
-      const row = document.createElement("div");
-      row.className = "board-row";
-      row.style.gridTemplateColumns = `3.2rem repeat(${state.size}, minmax(0, 1fr))`;
-
-      row.appendChild(bankStack(state.rowBanks[r], state.rowUsed[r]));
-      for (let c = 0; c < state.size; c += 1) {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = state.grid[r][c];
-        const on = state.selected.r === r && state.selected.c === c;
-        btn.className = `cell ${on ? "cell-on" : ""} ${state.grid[r][c] ? "cell-fill" : ""}`;
-        btn.addEventListener("click", () => this.handlers.onSelect(r, c));
-        row.appendChild(btn);
+    for (let r = 0; r < state.rows; r += 1) {
+      for (let c = 0; c < state.cols; c += 1) {
+        const cell = document.createElement("button");
+        cell.type = "button";
+        const block = !state.solution[r][c];
+        const key = `${r},${c}`;
+        cell.className = "x-cell";
+        if (block) {
+          cell.classList.add("x-block");
+          cell.disabled = true;
+        } else {
+          cell.textContent = state.fill[r][c] || "";
+          if (active.has(key)) cell.classList.add("x-word");
+          if (state.cursor.r === r && state.cursor.c === c) cell.classList.add("x-on");
+          if (starts[key]) {
+            const num = document.createElement("span");
+            num.className = "x-num";
+            num.textContent = starts[key];
+            cell.appendChild(num);
+          }
+          cell.addEventListener("click", () => this.handlers.onCell(r, c));
+        }
+        box.appendChild(cell);
       }
-      box.appendChild(row);
     }
   }
 
-  renderTray(state) {
-    const tray = this.els.tray;
-    tray.replaceChildren();
-    if (state.status === "won") {
-      const done = document.createElement("p");
-      done.className = "tray-msg";
-      done.textContent = "完成";
-      tray.appendChild(done);
-      return;
-    }
-    if (!state.options.length) {
-      const msg = document.createElement("p");
-      msg.className = "tray-msg";
-      msg.textContent = "呢格暫時冇得放，試下清其他格。";
-      tray.appendChild(msg);
-    } else {
-      state.options.forEach((ch) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "tile";
-        btn.textContent = ch;
-        btn.addEventListener("click", () => this.handlers.onPlace(ch));
-        tray.appendChild(btn);
-      });
-    }
-    const clear = document.createElement("button");
-    clear.type = "button";
-    clear.className = "tile tile-clear";
-    clear.textContent = "清格";
-    clear.addEventListener("click", () => this.handlers.onClear());
-    tray.appendChild(clear);
+  renderBank(state) {
+    const box = this.els.bank;
+    box.replaceChildren();
+    state.bank.forEach((ch) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "bank-key";
+      btn.textContent = ch;
+      btn.addEventListener("click", () => this.handlers.onChar(ch));
+      box.appendChild(btn);
+    });
   }
 
-  showModal(title, body, reveal) {
+  showWin(level) {
     this.els.modal.classList.remove("hide");
-    this.els.modal.querySelector("[data-modal-title]").textContent = title;
-    this.els.modal.querySelector("[data-modal-body]").textContent = body;
-    this.els.modal.querySelector("[data-modal-reveal]").textContent = reveal;
+    this.els.modal.querySelector("[data-modal-title]").textContent = `第 ${level} 關完成`;
+    this.els.modal.querySelector("[data-modal-body]").textContent = "可以再開一題，題目由詞庫隨機生成。";
   }
 
   hideModal() {
     this.els.modal.classList.add("hide");
   }
-}
-
-function corner() {
-  const el = document.createElement("div");
-  return el;
-}
-
-function bankStack(bank, used) {
-  const wrap = document.createElement("div");
-  wrap.className = "bank";
-  const leftover = [...used];
-  bank.forEach((ch) => {
-    const chip = document.createElement("span");
-    chip.className = "chip";
-    const idx = leftover.indexOf(ch);
-    if (idx >= 0) {
-      leftover.splice(idx, 1);
-      chip.classList.add("chip-used");
-    }
-    chip.textContent = ch;
-    wrap.appendChild(chip);
-  });
-  return wrap;
 }

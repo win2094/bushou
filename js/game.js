@@ -1,142 +1,125 @@
-import { PUZZLES } from "./data.js";
-
-function shuffle(list) {
-  const copy = [...list];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function subtractOnce(bank, used) {
-  const leftover = [...bank];
-  used.forEach((ch) => {
-    const index = leftover.indexOf(ch);
-    if (index >= 0) leftover.splice(index, 1);
-  });
-  return leftover;
-}
+import { generateCrossword } from "./generate.js";
 
 export class GameEngine {
-  constructor(puzzle) {
-    this.puzzle = puzzle;
-    this.size = puzzle.solution.length;
-    this.grid = Array.from({ length: this.size }, () => Array(this.size).fill(""));
-    this.rowBanks = puzzle.solution.map((row) => shuffle(row));
-    this.colBanks = Array.from({ length: this.size }, (_, c) =>
-      shuffle(puzzle.solution.map((row) => row[c])),
-    );
-    this.selected = { r: 0, c: 0 };
+  constructor(level = 1) {
+    this.level = level;
+    this.puzzle = generateCrossword({ seed: 20260906 + level * 97, size: 9 });
+    this.fill = this.puzzle.solution.map((row) => row.map((ch) => (ch ? "" : null)));
+    this.bank = [...this.puzzle.bank];
+    this.slotIndex = 0;
+    this.cursor = 0;
     this.status = "playing";
+    this.advanceToEmpty();
   }
 
-  rowUsed(r) {
-    return this.grid[r].filter(Boolean);
+  get slot() {
+    return this.puzzle.slots[this.slotIndex];
   }
 
-  colUsed(c) {
-    return this.grid.map((row) => row[c]).filter(Boolean);
+  cellValue(r, c) {
+    return this.fill[r][c];
   }
 
-  remainingRow(r) {
-    return subtractOnce(this.puzzle.solution[r], this.rowUsed(r));
+  isBlock(r, c) {
+    return this.puzzle.solution[r][c] === "";
   }
 
-  remainingCol(c) {
-    return subtractOnce(
-      this.puzzle.solution.map((row) => row[c]),
-      this.colUsed(c),
-    );
-  }
-
-  optionsAt(r, c) {
-    if (this.grid[r][c]) return [this.grid[r][c]];
-    const rowLeft = this.remainingRow(r);
-    const colLeft = this.remainingCol(c);
-    const colSet = new Map();
-    colLeft.forEach((ch) => colSet.set(ch, (colSet.get(ch) || 0) + 1));
-    const opts = [];
-    const seen = new Map();
-    rowLeft.forEach((ch) => {
-      const have = colSet.get(ch) || 0;
-      const used = seen.get(ch) || 0;
-      if (have > used) {
-        opts.push(ch);
-        seen.set(ch, used + 1);
-      }
-    });
-    return [...new Set(opts)];
-  }
-
-  select(r, c) {
-    this.selected = { r, c };
+  selectCell(r, c) {
+    if (this.isBlock(r, c)) return;
+    const here = this.puzzle.slots.filter((slot) => slot.cells.some((cell) => cell.r === r && cell.c === c));
+    if (!here.length) return;
+    const same = here.find((slot) => slot.id === this.slot.id);
+    const next = same && here.length > 1 ? here.find((slot) => slot.id !== this.slot.id) : here[0];
+    this.slotIndex = this.puzzle.slots.indexOf(next);
+    this.cursor = next.cells.findIndex((cell) => cell.r === r && cell.c === c);
   }
 
   place(ch) {
     if (this.status !== "playing") return false;
-    const { r, c } = this.selected;
-    if (this.grid[r][c]) this.grid[r][c] = "";
-    if (!this.optionsAt(r, c).includes(ch)) return false;
-    this.grid[r][c] = ch;
+    const at = this.bank.indexOf(ch);
+    if (at < 0) return false;
+    const cell = this.slot.cells[this.cursor];
+    const old = this.fill[cell.r][cell.c];
+    if (old) this.bank.push(old);
+    this.bank.splice(at, 1);
+    this.fill[cell.r][cell.c] = ch;
+    this.advanceToEmpty();
     this.checkWin();
     return true;
   }
 
-  clearSelected() {
-    if (this.status !== "playing") return;
-    const { r, c } = this.selected;
-    this.grid[r][c] = "";
+  advanceToEmpty() {
+    const cells = this.slot.cells;
+    for (let i = 0; i < cells.length; i += 1) {
+      const idx = (this.cursor + i) % cells.length;
+      const cell = cells[idx];
+      if (!this.fill[cell.r][cell.c]) {
+        this.cursor = idx;
+        return;
+      }
+    }
+  }
+
+  clearSlot() {
+    this.slot.cells.forEach((cell) => {
+      const ch = this.fill[cell.r][cell.c];
+      if (ch) {
+        this.bank.push(ch);
+        this.fill[cell.r][cell.c] = "";
+      }
+    });
+    this.cursor = 0;
+    this.status = "playing";
+  }
+
+  clearAll() {
+    this.fill.forEach((row, r) => {
+      row.forEach((ch, c) => {
+        if (ch) {
+          this.bank.push(ch);
+          this.fill[r][c] = "";
+        }
+      });
+    });
+    this.cursor = 0;
+    this.status = "playing";
   }
 
   hint() {
-    if (this.status !== "playing") return false;
-    for (let r = 0; r < this.size; r += 1) {
-      for (let c = 0; c < this.size; c += 1) {
-        if (!this.grid[r][c]) {
-          this.grid[r][c] = this.puzzle.solution[r][c];
-          this.selected = { r, c };
-          this.checkWin();
-          return true;
-        }
-      }
-    }
-    return false;
+    const cell = this.slot.cells.find((item) => !this.fill[item.r][item.c]) || this.slot.cells[this.cursor];
+    const answer = this.puzzle.solution[cell.r][cell.c];
+    const old = this.fill[cell.r][cell.c];
+    if (old === answer) return;
+    if (old) this.bank.push(old);
+    const at = this.bank.indexOf(answer);
+    if (at >= 0) this.bank.splice(at, 1);
+    this.fill[cell.r][cell.c] = answer;
+    this.advanceToEmpty();
+    this.checkWin();
   }
 
   checkWin() {
-    const done = this.grid.every((row, r) =>
-      row.every((ch, c) => ch === this.puzzle.solution[r][c]),
+    const done = this.puzzle.solution.every((row, r) =>
+      row.every((ch, c) => !ch || this.fill[r][c] === ch),
     );
     if (done) this.status = "won";
   }
 
   snapshot() {
-    const { r, c } = this.selected;
+    const slot = this.slot;
+    const cursorCell = slot.cells[this.cursor];
     return {
-      puzzle: this.puzzle,
-      size: this.size,
-      grid: this.grid.map((row) => [...row]),
-      rowBanks: this.rowBanks.map((row) => [...row]),
-      colBanks: this.colBanks.map((col) => [...col]),
-      rowUsed: Array.from({ length: this.size }, (_, i) => this.rowUsed(i)),
-      colUsed: Array.from({ length: this.size }, (_, i) => this.colUsed(i)),
-      selected: { ...this.selected },
-      options: this.optionsAt(r, c),
+      level: this.level,
+      rows: this.puzzle.rows,
+      cols: this.puzzle.cols,
+      fill: this.fill.map((row) => [...row]),
+      solution: this.puzzle.solution,
+      bank: [...this.bank],
+      slots: this.puzzle.slots,
+      slot,
+      cursor: { ...cursorCell },
       status: this.status,
+      clueText: `${slot.dir === "across" ? "橫" : "直"}${slot.num}　${slot.clue}`,
     };
   }
-}
-
-export function pickDailyPuzzle(date = new Date()) {
-  const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-  let hash = 0;
-  for (let i = 0; i < key.length; i += 1) {
-    hash = (hash * 31 + key.charCodeAt(i)) % 2147483647;
-  }
-  return PUZZLES[hash % PUZZLES.length];
-}
-
-export function pickRandomPuzzle() {
-  return PUZZLES[Math.floor(Math.random() * PUZZLES.length)];
 }

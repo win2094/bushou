@@ -1,18 +1,13 @@
-# 結字（漢字 Knotwords）
+# 填字
 
-手機優先的中文版 Knotwords：每行、每列外面有一組漢字，全部要放進該行／列，交點必須同時成立，砌成詞語。
+中文填字遊戲。上面係提示，中間係棋盤，下面係字庫。
 
-## 本機
+題目由 `js/lexicon.js` 詞庫隨機生成。要加題材，只需加：
 
-```bash
-npx serve .
+```js
+{ word: "工商銀行", clue: "四大國有商業銀行之一" }
 ```
 
-## 結構
-
-- `js/data.js` 題庫
-- `js/game.js` 純邏輯
-- `js/ui.js` 畫面
-- `js/app.js` 流程
+之後新關卡就有機會用到呢個詞。
 
 https://win2094.github.io/bushou/
