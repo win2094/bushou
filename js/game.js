@@ -44,8 +44,7 @@ export class GameEngine {
     this.bank.splice(at, 1);
     this.fill[cell.r][cell.c] = ch;
     this.advanceToEmpty();
-    this.checkWin();
-    return true;
+    return this.review();
   }
 
   advanceToEmpty() {
@@ -95,14 +94,54 @@ export class GameEngine {
     if (at >= 0) this.bank.splice(at, 1);
     this.fill[cell.r][cell.c] = answer;
     this.advanceToEmpty();
-    this.checkWin();
+    return this.review();
   }
 
-  checkWin() {
-    const done = this.puzzle.solution.every((row, r) =>
-      row.every((ch, c) => !ch || this.fill[r][c] === ch),
-    );
-    if (done) this.status = "won";
+  slotLabel(slot) {
+    return `${slot.dir === "across" ? "橫" : "直"}${slot.num}`;
+  }
+
+  slotState(slot) {
+    const letters = slot.cells.map((cell) => this.fill[cell.r][cell.c] || "");
+    if (letters.some((ch) => !ch)) return { state: "open", wrong: [] };
+    const wrong = slot.cells.filter((cell) => this.fill[cell.r][cell.c] !== this.puzzle.solution[cell.r][cell.c]);
+    return { state: wrong.length ? "bad" : "ok", wrong };
+  }
+
+  review() {
+    const reports = this.puzzle.slots.map((slot) => ({ slot, ...this.slotState(slot) }));
+    const just = reports.find((item) => item.slot.id === this.slot.id);
+    const filled = this.puzzle.solution.every((row, r) => row.every((ch, c) => !ch || this.fill[r][c]));
+    const allOk = reports.every((item) => item.state === "ok");
+
+    if (filled && allOk) {
+      this.status = "won";
+      return { kind: "won", message: `第 ${this.level} 關全對！` };
+    }
+    if (filled && !allOk) {
+      this.status = "playing";
+      const bad = reports.filter((item) => item.state === "bad");
+      const lines = bad.map((item) => {
+        const places = item.wrong.map((cell) => {
+          const idx = item.slot.cells.findIndex((pos) => pos.r === cell.r && pos.c === cell.c);
+          return `第${idx + 1}格`;
+        });
+        return `${this.slotLabel(item.slot)}錯咗（${places.join("、")}）`;
+      });
+      return { kind: "fail", message: `全部填咗但未全對。${lines.join("；")}` };
+    }
+    if (just.state === "ok") {
+      return { kind: "ok", message: `${this.slotLabel(just.slot)}啱晒：${just.slot.word}` };
+    }
+    if (just.state === "bad") {
+      const places = just.wrong.map((cell) => {
+        const idx = just.slot.cells.findIndex((pos) => pos.r === cell.r && pos.c === cell.c);
+        return `第${idx + 1}格「${this.fill[cell.r][cell.c]}」`;
+      });
+      return { kind: "miss", message: `${this.slotLabel(just.slot)}唔啱，${places.join("、")}要改。` };
+    }
+    const left = this.puzzle.solution.flat().filter(Boolean).length - this.fill.flat().filter(Boolean).length;
+    return { kind: "place", message: `仲有 ${left} 格。跟住填${this.slotLabel(this.slot)}。` };
   }
 
   snapshot() {
@@ -119,7 +158,14 @@ export class GameEngine {
       slot,
       cursor: { ...cursorCell },
       status: this.status,
-      clueText: `${slot.dir === "across" ? "橫" : "直"}${slot.num}　${slot.clue}`,
+      clueText: `${this.slotLabel(slot)}　${slot.clue}`,
+      marks: this.puzzle.slots.map((item) => ({ slot: item, ...this.slotState(item) })),
+      progress: {
+        filled: this.fill.flat().filter(Boolean).length,
+        total: this.puzzle.solution.flat().filter(Boolean).length,
+        correctWords: this.puzzle.slots.filter((item) => this.slotState(item).state === "ok").length,
+        totalWords: this.puzzle.slots.length,
+      },
     };
   }
 }

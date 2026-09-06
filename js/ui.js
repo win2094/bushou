@@ -7,6 +7,7 @@ export class GameView {
   render(state) {
     this.els.clue.textContent = state.clueText;
     this.els.level.textContent = `第 ${state.level} 關`;
+    this.els.progress.textContent = `已填 ${state.progress.filled}/${state.progress.total}　啱咗 ${state.progress.correctWords}/${state.progress.totalWords} 條詞`;
     this.renderGrid(state);
     this.renderBank(state);
   }
@@ -16,6 +17,16 @@ export class GameView {
     box.style.gridTemplateColumns = `repeat(${state.cols}, minmax(0, 1fr))`;
     box.replaceChildren();
     const active = new Set(state.slot.cells.map((cell) => `${cell.r},${cell.c}`));
+    const wrong = new Set();
+    const good = new Set();
+    state.marks.forEach((mark) => {
+      if (mark.state === "ok") {
+        mark.slot.cells.forEach((cell) => good.add(`${cell.r},${cell.c}`));
+      }
+      if (mark.state === "bad") {
+        mark.wrong.forEach((cell) => wrong.add(`${cell.r},${cell.c}`));
+      }
+    });
     const starts = {};
     state.slots.forEach((slot) => {
       const key = `${slot.cells[0].r},${slot.cells[0].c}`;
@@ -35,6 +46,8 @@ export class GameView {
         } else {
           cell.textContent = state.fill[r][c] || "";
           if (active.has(key)) cell.classList.add("x-word");
+          if (good.has(key)) cell.classList.add("x-ok");
+          if (wrong.has(key)) cell.classList.add("x-bad");
           if (state.cursor.r === r && state.cursor.c === c) cell.classList.add("x-on");
           if (starts[key]) {
             const num = document.createElement("span");
